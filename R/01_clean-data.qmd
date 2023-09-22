@@ -1,0 +1,152 @@
+---
+title: "Cleaning Lead Module Evaluation Responses"
+author: "Dave"
+format: html
+editor: visual
+---
+
+## Housekeeping
+
+### Libraries
+
+```{r libs}
+library(here)
+library(fs)
+library(ggplot2)
+library(dplyr)
+library(vroom)
+library(magrittr)
+library(janitor)
+library(stringr)
+library(lubridate)
+library(carutools)
+library(tidyr)
+```
+
+### Paths
+
+```{r paths}
+in_inputs <- function(...) here("inputs", ...)
+```
+
+### Read in data
+
+```{r readInData}
+collectors <- vroom(in_inputs("collector-list_lead-module-evaluation.csv"))
+responses  <- vroom(in_inputs("responses_lead-module-evaluation.csv"))
+```
+
+## Clean data
+
+### Clean collector list
+
+Just drop unwanted columns, renaming in parrallell
+
+```{r cleanCollectorList}
+collectors %<>% select(collector_id = CollectorID,
+                       collector_name = Title)
+```
+
+### Clean responses
+
+#### Drop and rename
+
+```{r cleanResponses}
+responses %<>% clean_names()
+
+responses %<>% 
+  select(-email_address, -first_name, -last_name, -custom_data_1, -end_date)
+
+x_names <- str_starts(names(responses), "x")
+
+names(responses)[x_names] <- unlist(responses[x_names][1,])
+
+responses %<>% clean_names()
+
+responses <- responses[-1, ]
+
+names(responses)
+```
+
+#### Apply classes
+
+```{r applyClasses}
+responses %<>% mutate(start_date = mdy_hms(start_date, tz = "GMT"))
+```
+
+## Join collector names
+
+```{r joinCollectorNames}
+responses %<>% left_join(collectors, by = "collector_id")
+responses %<>% select(-collector_id)
+table(responses$collecor_name)
+```
+
+## Save
+
+```{r save}
+dir_create(here("intermediate"))
+
+saveRDS(responses, here("intermediate", "cleaned-responses.RDS"))
+```
+
+## Plot
+
+```{r littlePlot}
+responses |>
+  filter(!is.na(collector_name)) |> 
+  group_by(collector_name,
+           date_bracket = 
+             between(start_date, ymd("2022-01-01"), ymd("2022-04-01"))) |> 
+  summarise(time = mean(start_date), responses = n()) |>
+  ggplot(aes(x = time, y = responses, colour = collector_name)) + 
+  
+  geom_point(size = 4) +
+  geom_segment(aes(xend = time, yend = 0),
+               size = 2, alpha = 0.7) +
+  
+  ca_scale_colour_discrete() +
+  scale_y_continuous(limits = c(0,9), breaks = seq(0,10,2)) +
+  scale_x_datetime(
+    date_breaks = "1 month",
+    labels = \(x) month(x, label = TRUE)) +
+  
+  theme_minimal() +
+  
+  labs(
+    x = "Approx. collection date (2022)", y = "Number of responses",
+    title = "LEAD module evaluation responses to date",
+    colour = "Module"
+  )
+```
+
+### Tabulate/pivot
+
+```{r foo}
+responses |> 
+  group_by(module = collector_name,
+           response_time = 
+             case_when(
+               month(start_date) %in% c(2,3) ~ "Jan/Feb",
+               month(start_date) == 11       ~ "Nov"
+             ) |> 
+             ordered(levels = c("Jan/Feb", "Nov"))) |>
+  count() |> 
+  ungroup() |>
+  
+  mutate(module = factor(module)) |>
+  complete(module, response_time, fill = list(n = 0)) |> 
+  
+  ggplot(aes(x = response_time, y = n, fill = module)) + 
+  geom_bar(position = "dodge2", stat = "identity", colour = "black") +
+  
+  ca_scale_fill_discrete(drop = FALSE) + 
+  scale_x_discrete(drop = FALSE) + 
+  scale_y_continuous(breaks = 0:6, expand = expansion(add = c(0.5, 0.5))) +
+  
+  labs(x = "Response month (2022)", y = "No. responses", fill = "Module",
+       title = "Module evaluation responses",
+       subtitle = "By module and time of response") +
+  
+  theme_bw()
+```
