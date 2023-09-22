@@ -1,0 +1,59 @@
+---
+title: "Cleaning Lead Module Evaluation Data"
+format: html
+editor: visual
+---
+
+## Introduction
+
+In this quarto document we will be cleaning the SurveyMonkey data from the LEAD end-of-module evaluation survey.
+
+## Libraries
+
+Some libraries you may not be familiar with - worth knowing about them so check out the links:
+
+-   [here](https://github.com/r-lib/here) gives us the `here()` function, which helps us to locate files consistently and conveniently relative to the repository.
+
+-   [fs](https://github.com/r-lib/fs) gives us some really good file-handling functions like `file_rename()` or `dir_create()`. They are a bit nicer than the base R equivalents.
+
+-   [dplyr](https://dplyr.tidyverse.org/) gives us functions for handling data, such as `select()` or `mutate()`
+
+-   [forcats](forcats.tidyverse.org) is another tidyverse package that helps with handling factors
+
+-   vroom is a package that's really good at reading tabular data from a file
+
+-   
+
+```{r libraries}
+library(here)
+library(fs)
+
+library(carutools)
+
+library(dplyr)
+library(forcats)
+library(vroom)
+library(janitor)
+```
+
+## Load data
+
+This is a great demonstration of the magic of `here::here()` . `responses` are the actual responses to the survey, and `collectors` is a separate table of the collection links that each response came through on. For this survey, respondents had a different collection link depending on which lead module they did, so our first objective is the
+
+```{r load_data}
+
+# TODO: Specify col_types within vroom() (see ?vroom for details)
+
+responses <-
+  vroom(
+    here("data", "survey-responses_2023-09-22.csv"))
+
+collectors <- 
+  vroom(
+    here("data", "collector_list.csv"))
+
+# TODO: give data nice names (probably by-hand)
+# TODO: Make sure multiple choice questions are encoded as factors, and that all factor levels are accounted for (e.g w/ forcats::fct_expand()). See https://www.surveymonkey.com/r/Preview/?sm=MpKrnloZbwbeGPOOc25qQ_2BSuniu5_2FcloOe2YDuiApcJ6X6fxs9OdnWMpLcKYfIIm for the original forms of all questions
+
+## ^ e.g we want `factor(c(good, bad), levels = c(good, bad, neutral))` - some levels may not be present within the data, only the survey.
+```
