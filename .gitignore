@@ -6,7 +6,6 @@
 .quarto
 
 ## Ignore everything in the archive
-archive/*
 
 ## Ingnore all qmd guff & outputs
 R/*_cache
