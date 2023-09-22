@@ -4,3 +4,11 @@
 .httr-oauth
 .DS_Store
 .quarto
+
+## Ignore everything in the archive
+archive/*
+
+## Ingnore all qmd guff & outputs
+R/*_cache
+R/*_files
+R/*.html
