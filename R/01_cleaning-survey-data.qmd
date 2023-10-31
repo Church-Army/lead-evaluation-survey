@@ -22,7 +22,7 @@ Some libraries you may not be familiar with - worth knowing about them so check 
 
 -   vroom is a package that's really good at reading tabular data from a file
 
--   
+-   Janitor is great, we like to use it to `clean_names()`
 
 ```{r libraries}
 library(here)
@@ -34,6 +34,7 @@ library(dplyr)
 library(forcats)
 library(vroom)
 library(janitor)
+library(stringr)
 ```
 
 ## Load data
@@ -42,18 +43,104 @@ This is a great demonstration of the magic of `here::here()` . `responses` are t
 
 ```{r load_data}
 
-# TODO: Specify col_types within vroom() (see ?vroom for details)
-
 responses <-
   vroom(
-    here("data", "survey-responses_2023-09-22.csv"))
+    
+    here("data", "survey-responses_2023-09-22.csv"),
+    
+    ## 'Response' is meaningless guff in poorly-formatted SM outputs
+    na = c("", "NA", "Response"),
+    
+    col_select =
+      c(-`IP Address`, -`Email Address`, -`First Name`,
+        -`Last Name`,  -`Custom Data 1`),
+    
+    col_types =
+      
+      list(  
+        `Respondent ID` = col_character(),
+        `Collector ID` = col_character(),
+        `Start Date` = col_character(),
+        `End Date` = col_character(),
+        
+        `What do you think were the main strengths and weaknesses of this module?` =
+          col_character(),
+        
+        `How much of this module's learning material was relevant to you?` =
+          col_factor(
+            levels =
+              c("Very little", "Some of it", "Most of it", "All of it")
+            ),
+        
+        `To what extent do you agree with the following statement: "I feel more equipped to lead in my context as a result of my learning through this module."` =
+          # sic
+          col_factor(c("Strongly disagree", "Disgree", "Agree", "Strongly agree")),
 
-collectors <- 
-  vroom(
-    here("data", "collector_list.csv"))
+        `Are you interested in the possibility of doing another LEAD module after this one?` =
+          col_factor(c("Yes", "No", "Not sure",
+                     "I have now completed all the LEAD modules")),
+        
+        `Has your learning from this module changed your approach to leadership?` =
+          col_factor(c("Yes, a great deal", "Yes, somewhat", "Not really")),
 
-# TODO: give data nice names (probably by-hand)
-# TODO: Make sure multiple choice questions are encoded as factors, and that all factor levels are accounted for (e.g w/ forcats::fct_expand()). See https://www.surveymonkey.com/r/Preview/?sm=MpKrnloZbwbeGPOOc25qQ_2BSuniu5_2FcloOe2YDuiApcJ6X6fxs9OdnWMpLcKYfIIm for the original forms of all questions
+        `To what extent do you agree with this statement? "I was given the support and information I needed to complete the learning activities to the best of my ability."` =
+          col_factor(c("Strongly disagree", "Disagree", "Agree", "Strongly agree")),
+        
+        `To what extent do you agree with this statement? \"The feedback I received for my learning activity submissions was helpful"` =
+          # sic
+          col_factor(c("Strongly disagree", "Disagree", "Aagree", "Strongly agree"))
+        )
+    )
 
-## ^ e.g we want `factor(c(good, bad), levels = c(good, bad, neutral))` - some levels may not be present within the data, only the survey.
+                  
+# TODO: give data nice names (probably by-hand) (dplyr::rename)
+
 ```
+
+### Rename data
+
+```{r rename}
+
+## Fix weird SM naming issue ---------------------------------
+missing_names <- str_detect(names(responses), "\\.\\.\\.\\d+")
+
+new_names <- 
+  responses[1, missing_names] |> 
+  unlist() |> 
+  unname()
+
+new_names <- str_c(new_names, 1:length(new_names), sep = "_")
+names(responses)[missing_names] <- new_names
+
+responses <- slice(responses, -1)
+
+## Rename -----------------------------------------------------
+responses <- 
+  dplyr::rename(
+    responses,
+    strengths_and_weaknesses =
+      "What do you think were the main strengths and weaknesses of this module?",
+    learning_relevance =
+      "How much of this module's learning material was relevant to you?",
+    equipped_to_lead =
+      "To what extent do you agree with the following statement: \"I feel more equipped to lead in my context as a result of my learning through this module.\"",         
+
+    learning_group = "Did you complete this module as part of an action learning group?",                                                                                       
+    interested_in_another = "Are you interested in the possibility of doing another LEAD module after this one?",                                                                                  
+    changed_approach = "Has your learning from this module changed your approach to leadership?",                                                                                             
+    in_what_ways = "You said that this module has changed the way that you approach leadership. In what ways has your approach to leadership changed?",                                   
+    given_support = "To what extent do you agree with this statement? \"I was given the support and information I needed to complete the learning activities to the best of my ability.\"",
+
+    helpful_feedback = "To what extent do you agree with this statement? \"The feedback I received for my learning activity submissions was helpful\"",                                       
+)
+
+responses <- clean_names(responses)
+
+```
+
+## Save data
+
+```{r save_data}
+saveRDS(responses, here("data", "responses_cleaned.RDS"))
+```
+
