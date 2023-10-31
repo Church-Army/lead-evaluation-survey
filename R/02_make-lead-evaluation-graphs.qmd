@@ -25,14 +25,16 @@ responses <- readRDS(here("data", "responses_cleaned.RDS"))
 
 ```{r easier_graph}
 
+plot_fill <- "#562431"
+
 ggplot(responses, aes(x = equipped_to_lead)) +
   geom_bar(fill = ca_maroon()) +
   labs(x = "Equipped to lead",
        y = "Frequency",
        title = "How equipped to lead are those who complete LEAD modules?") +
   theme_minimal() +
-  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
-        axis.text = element_text(colour = "#562431"),
+  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+        axis.text = element_text(colour = plot_fill),
         panel.grid.major.y = element_blank(),
         panel.grid = element_line(colour = "gray70"))
 
@@ -42,10 +44,6 @@ ggplot(responses, aes(x = equipped_to_lead)) +
 ### Tile plots
 
 ```{r complicated_graph}
-# longer <- 
-#   pivot_longer(responses,
-#                c(learning_relevance, equipped_to_lead),
-#                names_to = "question", values_to = "answer")
 
 lead_summary <-
   group_by(responses, learning_relevance, equipped_to_lead) |> 
@@ -106,7 +104,7 @@ ggplot(responses, aes(x = time_taken, y = learning_relevance)) +
   theme_minimal() +
   
   theme(text = element_text(colour = ("gray25"), family = "Trebuchet MS"),
-        axis.text = element_text(colour = ("#562431")),
+        axis.text = element_text(colour = (plot_fill)),
         panel.grid = element_line(colour = "gray70"),
         plot.title.position = "plot")
 
@@ -158,8 +156,8 @@ ggplot(responses, aes(x = learning_relevance)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
-        axis.text = element_text(colour = "#562431"),
+  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+        axis.text = element_text(colour = plot_fill),
         panel.grid.major.y = element_blank(),
         panel.grid = element_line(colour = "gray70"))
   
@@ -169,7 +167,6 @@ ggplot(responses, aes(x = learning_relevance)) +
 ```{r table equipped_to_lead}
 tabler(responses, equipped_to_lead)
 ```
-
 
 ```{r bar chart equipped_to_lead}
 
@@ -185,8 +182,8 @@ ggplot(responses, aes(x = equipped_to_lead)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
-        axis.text = element_text(colour = "#562431"),
+  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+        axis.text = element_text(colour = plot_fill),
         panel.grid.major.y = element_blank(),
         panel.grid = element_line(colour = "gray70"))
   
@@ -236,8 +233,8 @@ ggplot(responses, aes(x = changed_approach)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
-        axis.text = element_text(colour = "#562431"),
+  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+        axis.text = element_text(colour = plot_fill),
         panel.grid.major.y = element_blank(),
         panel.grid = element_line(colour = "gray70"))
 ```
