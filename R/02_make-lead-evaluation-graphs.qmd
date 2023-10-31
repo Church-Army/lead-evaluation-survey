@@ -191,14 +191,6 @@ ggplot(responses, aes(x = equipped_to_lead)) +
 
 ```{r table learning_group}
 
-
-make_table <- function(data, column) {
-  column <- enexpr(column)
-  
-  data %>%
-    pull(!!column)
-}
-
 tabler <- function(data, by_column) {
   by_column <- enexpr(by_column)
   
