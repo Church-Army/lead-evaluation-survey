@@ -1,0 +1,252 @@
+---
+title: "LEAD end of module evaluation survey"
+format: html
+editor: visual
+---
+
+```{r libraries}
+library(fs)
+library(here)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(carutools)
+library(extrafont)
+library(lubridate)
+library(scales)
+library(forcats)
+```
+
+## Read data
+
+```{r read_data}
+responses <- readRDS(here("data", "responses_cleaned.RDS"))
+```
+
+```{r easier_graph}
+
+ggplot(responses, aes(x = equipped_to_lead)) +
+  geom_bar(fill = ca_maroon()) +
+  labs(x = "Equipped to lead",
+       y = "Frequency",
+       title = "How equipped to lead are those who complete LEAD modules?") +
+  theme_minimal() +
+  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
+        axis.text = element_text(colour = "#562431"),
+        panel.grid.major.y = element_blank(),
+        panel.grid = element_line(colour = "gray70"))
+
+
+```
+
+### Tile plots
+
+```{r complicated_graph}
+# longer <- 
+#   pivot_longer(responses,
+#                c(learning_relevance, equipped_to_lead),
+#                names_to = "question", values_to = "answer")
+
+lead_summary <-
+  group_by(responses, learning_relevance, equipped_to_lead) |> 
+  summarise(count = n(), .groups = "drop")
+
+lead_summary <- 
+  complete(lead_summary, learning_relevance, equipped_to_lead,
+           fill = list(count = 0))
+
+light_colour <- function(colour = ca_orange, n = 10){
+  orange_maker <- colorRampPalette(c(colour, "white"))
+  light_orange <- orange_maker(n)[n - 1]
+}
+
+ggplot(lead_summary,
+       aes(x    = equipped_to_lead,
+           y    = learning_relevance,
+           fill = count)) +
+  
+  geom_tile(colour = "black") +
+  
+  geom_text(aes(label = replace(count, count == 0, ""))) +
+
+labs(x = "More equipped to lead?",
+     y = "Relevant learning material?",
+     title = "Respondent evaluations of LEAD program") + 
+  
+  scale_fill_gradient(low = light_colour(ca_maroon()), high = ca_maroon()) +
+  coord_fixed() + 
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(),
+        text = element_text(colour = "gray25", family = "Trebuchet MS"),
+        plot.title.position = "plot")
+  
+
+
+```
+
+```{r format_end_date}
+responses <- mutate(responses,
+                    end_date   = mdy_hms(end_date),
+                    start_date = mdy_hms(start_date))
+
+responses <- mutate(responses, time_taken = end_date - start_date)
+```
+
+```{r plot_times}
+ggplot(responses, aes(x = time_taken, y = learning_relevance)) +
+  
+  geom_point(color = ca_maroon(), size = 4, alpha = 0.6, shape = "square") + 
+  
+  labs(x = "Time taken to complete survey",
+       y = "Relevance of learning",
+       title = "People who complete the survey faster find the learning less relevant") +
+  
+  scale_fill_manual(values = c(ca_maroon())) +
+  
+  theme_minimal() +
+  
+  theme(text = element_text(colour = ("gray25"), family = "Trebuchet MS"),
+        axis.text = element_text(colour = ("#562431")),
+        panel.grid = element_line(colour = "gray70"),
+        plot.title.position = "plot")
+
+
+
+
+```
+
+```{r t_testing}
+responses$time_taken
+
+all_learning_relevant <- responses[["learning_relevance"]] == "All of it"
+
+all_relevant_times <-
+  responses[["time_taken"]][all_learning_relevant] |> 
+  as.numeric()
+
+other_times        <-
+  responses[["time_taken"]][!all_learning_relevant] |> 
+  as.numeric()
+
+result <- t.test(all_relevant_times, other_times)
+result
+```
+
+```{r table learning_relevance}
+tabler <- function(data, by_column) {
+  
+  data |>
+    summarise(n = n(), .by = {{by_column}}) |>
+    mutate(`%` = percent(n / sum(n)))
+}
+
+tabler(responses, learning_relevance)
+
+```
+
+```{r bar chart learning_relevance}
+
+ggplot(responses, aes(x = learning_relevance)) +
+    
+  geom_bar(fill = ca_maroon()) +
+    
+  labs(x     = "Relevance",
+       y     = "Frequency",
+       title = "How relevant did people find their module?") +
+    
+  scale_x_discrete(drop = FALSE) +
+  
+  theme_minimal() +
+  
+  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
+        axis.text = element_text(colour = "#562431"),
+        panel.grid.major.y = element_blank(),
+        panel.grid = element_line(colour = "gray70"))
+  
+
+```
+
+```{r table equipped_to_lead}
+tabler(responses, equipped_to_lead)
+```
+
+
+```{r bar chart equipped_to_lead}
+
+ggplot(responses, aes(x = equipped_to_lead)) +
+    
+  geom_bar(fill = ca_maroon()) +
+    
+  labs(x     = "To what extent?",
+       y     = "Frequency",
+       title = "Do people agree that they feel equipped?") +
+    
+  scale_x_discrete(drop = FALSE) +
+  
+  theme_minimal() +
+  
+  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
+        axis.text = element_text(colour = "#562431"),
+        panel.grid.major.y = element_blank(),
+        panel.grid = element_line(colour = "gray70"))
+  
+```
+
+```{r table learning_group}
+
+
+make_table <- function(data, column) {
+  column <- enexpr(column)
+  
+  data %>%
+    pull(!!column)
+}
+
+tabler <- function(data, by_column) {
+  by_column <- enexpr(by_column)
+  
+  data %>%
+    summarise(n = n(), .by = !!by_column) %>%
+    mutate(`%` = scales::percent(n / sum(n)))
+}
+
+tabler(responses, "learning_group")
+
+```
+
+```{r table interested_in_another}
+tabler(responses, interested_in_another)
+```
+
+```{r table changed_approach}
+tabler(responses, changed_approach)
+```
+
+```{r bar chart changed_approach}
+
+ggplot(responses, aes(x = changed_approach)) +
+    
+  geom_bar(fill = ca_maroon()) +
+    
+  labs(x     = "To what extent?",
+       y     = "Frequency",
+       title = "Has their approach to leadership changed?") +
+    
+  scale_x_discrete(drop = FALSE) +
+  
+  theme_minimal() +
+  
+  theme(text = element_text(colour = "#562431", family = "Trebuchet MS"),
+        axis.text = element_text(colour = "#562431"),
+        panel.grid.major.y = element_blank(),
+        panel.grid = element_line(colour = "gray70"))
+```
+
+```{r table given_support}
+tabler(responses, given_support)
+```
+
+```{r table helpful_feedback}
+tabler(responses, equipped_to_lead)
+
+```
