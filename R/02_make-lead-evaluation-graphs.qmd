@@ -193,12 +193,9 @@ learning_relevance_bar
 equipped_to_lead_table <- tabler(responses, equipped_to_lead)
 
 equipped_to_lead_table
-
 ```
 
 ```{r bar chart equipped_to_lead}
-
-## TODO: 'capture' all plots within global environment, package them as a list and save as RDS. Demonstrated w/ this plot.
 
 equipped_to_lead_bar <-
   ggplot(responses, aes(x = equipped_to_lead)) +
@@ -220,30 +217,25 @@ equipped_to_lead_bar <-
     panel.grid = element_line(colour = "gray70")
     )
 
-## Still printed in rendered doc via explict call
 equipped_to_lead_bar
-
 ```
 
 ```{r table learning_group}
 learning_group_table <- tabler(responses, "learning_group")
 
 learning_group_table
-
 ```
 
 ```{r table interested_in_another}
 interested_in_another_table <- tabler(responses, interested_in_another)
 
 interested_in_another_table
-
 ```
 
 ```{r table changed_approach}
 changed_approach_table <- tabler(responses, changed_approach)
 
 changed_approach_table
-
 ```
 
 ```{r bar chart changed_approach}
@@ -268,21 +260,18 @@ changed_approach_bar <- ggplot(responses, aes(x = changed_approach)) +
     )
 
 changed_approach_bar
-
 ```
 
 ```{r table given_support}
 given_support_table <- tabler(responses, given_support)
 
 given_support_table
-
 ```
 
 ```{r table helpful_feedback}
 helpful_feedback_table <- tabler(responses, equipped_to_lead)
 
 helpful_feedback_table
-
 ```
 
 ## Save plots and tables
@@ -294,7 +283,8 @@ helpful_feedback_table
 plots <- list(
   learning_relevance_bar = learning_relevance_bar,
   equipped_to_lead_bar = equipped_to_lead_bar,
-  changed_approach_bar = changed_approach_bar)
+  changed_approach_bar = changed_approach_bar
+  )
   
 
 tables <- list(
@@ -304,7 +294,8 @@ tables <- list(
   interested_in_another_table = interested_in_another_table,
   changed_approach_table = changed_approach_table,
   given_support_table = given_support_table,
-  helpful_feedback_table = helpful_feedback_table)
+  helpful_feedback_table = helpful_feedback_table
+  )
 
 
 plots_and_tables <- 
