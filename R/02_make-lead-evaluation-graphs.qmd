@@ -154,7 +154,7 @@ result
 
 ```{r table learning_relevance}
   
-tabler <- function(data, by_column) {
+learning_relevance_table <- tabler <- function(data, by_column) {
   
   data |>
     summarise(n = n(), .by = {{by_column}}) |>
@@ -166,7 +166,7 @@ tabler(responses, learning_relevance)
 
 ```{r bar chart learning_relevance}
 
-ggplot(responses, aes(x = learning_relevance)) +
+learning_relevance_bar <- ggplot(responses, aes(x = learning_relevance)) +
     
   geom_bar(fill = ca_maroon()) +
     
@@ -184,10 +184,16 @@ ggplot(responses, aes(x = learning_relevance)) +
     panel.grid.major.y = element_blank(),
     panel.grid = element_line(colour = "gray70")
     )
+
+learning_relevance_bar
+
 ```
 
 ```{r table equipped_to_lead}
-tabler(responses, equipped_to_lead)
+equipped_to_lead_table <- tabler(responses, equipped_to_lead)
+
+equipped_to_lead_table
+
 ```
 
 ```{r bar chart equipped_to_lead}
@@ -216,32 +222,33 @@ equipped_to_lead_bar <-
 
 ## Still printed in rendered doc via explict call
 equipped_to_lead_bar
+
 ```
 
 ```{r table learning_group}
+learning_group_table <- tabler(responses, "learning_group")
 
-tabler <- function(data, by_column) {
-  by_column <- enexpr(by_column)
-  
-  data %>%
-    summarise(n = n(), .by = !!by_column) %>%
-    mutate(`%` = scales::percent(n / sum(n)))
-}
+learning_group_table
 
-tabler(responses, "learning_group")
 ```
 
 ```{r table interested_in_another}
-tabler(responses, interested_in_another)
+interested_in_another_table <- tabler(responses, interested_in_another)
+
+interested_in_another_table
+
 ```
 
 ```{r table changed_approach}
-tabler(responses, changed_approach)
+changed_approach_table <- tabler(responses, changed_approach)
+
+changed_approach_table
+
 ```
 
 ```{r bar chart changed_approach}
 
-ggplot(responses, aes(x = changed_approach)) +
+changed_approach_bar <- ggplot(responses, aes(x = changed_approach)) +
     
   geom_bar(fill = ca_maroon()) +
     
@@ -259,14 +266,23 @@ ggplot(responses, aes(x = changed_approach)) +
     panel.grid.major.y = element_blank(),
     panel.grid = element_line(colour = "gray70")
     )
+
+changed_approach_bar
+
 ```
 
 ```{r table given_support}
-tabler(responses, given_support)
+given_support_table <- tabler(responses, given_support)
+
+given_support_table
+
 ```
 
 ```{r table helpful_feedback}
-tabler(responses, equipped_to_lead)
+helpful_feedback_table <- tabler(responses, equipped_to_lead)
+
+helpful_feedback_table
+
 ```
 
 ## Save plots and tables
@@ -276,12 +292,20 @@ tabler(responses, equipped_to_lead)
 ## The same text below means two different things to R in this context. Do you understand what they are? If you're not sure, try changing one or more of them and examining 'plots'
 
 plots <- list(
-  equipped_to_lead_bar = equipped_to_lead_bar
-)
+  learning_relevance_bar = learning_relevance_bar,
+  equipped_to_lead_bar = equipped_to_lead_bar,
+  changed_approach_bar = changed_approach_bar)
+  
 
 tables <- list(
-  
-)
+  learning_relevance_table = learning_relevance_table,
+  equipped_to_lead_table = equipped_to_lead_table,
+  learning_group_table = learning_group_table,
+  interested_in_another_table = interested_in_another_table,
+  changed_approach_table = changed_approach_table,
+  given_support_table = given_support_table,
+  helpful_feedback_table = helpful_feedback_table)
+
 
 plots_and_tables <- 
   list(
