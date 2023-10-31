@@ -28,17 +28,21 @@ responses <- readRDS(here("data", "responses_cleaned.RDS"))
 plot_fill <- "#562431"
 
 ggplot(responses, aes(x = equipped_to_lead)) +
+  
   geom_bar(fill = ca_maroon()) +
+  
   labs(x = "Equipped to lead",
        y = "Frequency",
        title = "How equipped to lead are those who complete LEAD modules?") +
+  
   theme_minimal() +
-  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
-        axis.text = element_text(colour = plot_fill),
-        panel.grid.major.y = element_blank(),
-        panel.grid = element_line(colour = "gray70"))
-
-
+  
+  theme(
+    text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+    axis.text = element_text(colour = plot_fill),
+    panel.grid.major.y = element_blank(),
+    panel.grid = element_line(colour = "gray70")
+    )
 ```
 
 ### Tile plots
@@ -74,15 +78,15 @@ labs(x = "More equipped to lead?",
   scale_fill_gradient(low = light_colour(ca_maroon()), high = ca_maroon()) +
   coord_fixed() + 
   theme_minimal() +
-  theme(panel.grid.major = element_blank(),
-        text = element_text(colour = "gray25", family = "Trebuchet MS"),
-        plot.title.position = "plot")
-  
-
-
+  theme(
+    panel.grid.major = element_blank(),
+    text = element_text(colour = "gray25", family = "Trebuchet MS"),
+    plot.title.position = "plot"
+    )
 ```
 
 ```{r format_end_date}
+
 responses <- mutate(responses,
                     end_date   = mdy_hms(end_date),
                     start_date = mdy_hms(start_date))
@@ -91,6 +95,7 @@ responses <- mutate(responses, time_taken = end_date - start_date)
 ```
 
 ```{r plot_times}
+
 ggplot(responses, aes(x = time_taken, y = learning_relevance)) +
   
   geom_point(color = ca_maroon(), size = 4, alpha = 0.6, shape = "square") + 
@@ -103,17 +108,16 @@ ggplot(responses, aes(x = time_taken, y = learning_relevance)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = ("gray25"), family = "Trebuchet MS"),
-        axis.text = element_text(colour = (plot_fill)),
-        panel.grid = element_line(colour = "gray70"),
-        plot.title.position = "plot")
-
-
-
-
+  theme(
+    text = element_text(colour = ("gray25"), family = "Trebuchet MS"),
+    axis.text = element_text(colour = (plot_fill)),
+    panel.grid = element_line(colour = "gray70"),
+    plot.title.position = "plot"
+    )
 ```
 
 ```{r t_testing}
+
 responses$time_taken
 
 all_learning_relevant <- responses[["learning_relevance"]] == "All of it"
@@ -131,6 +135,7 @@ result
 ```
 
 ```{r table learning_relevance}
+  
 tabler <- function(data, by_column) {
   
   data |>
@@ -139,7 +144,6 @@ tabler <- function(data, by_column) {
 }
 
 tabler(responses, learning_relevance)
-
 ```
 
 ```{r bar chart learning_relevance}
@@ -156,12 +160,12 @@ ggplot(responses, aes(x = learning_relevance)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
-        axis.text = element_text(colour = plot_fill),
-        panel.grid.major.y = element_blank(),
-        panel.grid = element_line(colour = "gray70"))
-  
-
+  theme(
+    text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+    axis.text = element_text(colour = plot_fill),
+    panel.grid.major.y = element_blank(),
+    panel.grid = element_line(colour = "gray70")
+    )
 ```
 
 ```{r table equipped_to_lead}
@@ -182,11 +186,12 @@ ggplot(responses, aes(x = equipped_to_lead)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
-        axis.text = element_text(colour = plot_fill),
-        panel.grid.major.y = element_blank(),
-        panel.grid = element_line(colour = "gray70"))
-  
+  theme(
+    text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+    axis.text = element_text(colour = plot_fill),
+    panel.grid.major.y = element_blank(),
+    panel.grid = element_line(colour = "gray70")
+    )
 ```
 
 ```{r table learning_group}
@@ -200,7 +205,6 @@ tabler <- function(data, by_column) {
 }
 
 tabler(responses, "learning_group")
-
 ```
 
 ```{r table interested_in_another}
@@ -225,10 +229,12 @@ ggplot(responses, aes(x = changed_approach)) +
   
   theme_minimal() +
   
-  theme(text = element_text(colour = plot_fill, family = "Trebuchet MS"),
-        axis.text = element_text(colour = plot_fill),
-        panel.grid.major.y = element_blank(),
-        panel.grid = element_line(colour = "gray70"))
+  theme(
+    text = element_text(colour = plot_fill, family = "Trebuchet MS"),
+    axis.text = element_text(colour = plot_fill),
+    panel.grid.major.y = element_blank(),
+    panel.grid = element_line(colour = "gray70")
+    )
 ```
 
 ```{r table given_support}
@@ -237,5 +243,4 @@ tabler(responses, given_support)
 
 ```{r table helpful_feedback}
 tabler(responses, equipped_to_lead)
-
 ```
