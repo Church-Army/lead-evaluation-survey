@@ -192,8 +192,11 @@ tabler(responses, equipped_to_lead)
 
 ```{r bar chart equipped_to_lead}
 
-ggplot(responses, aes(x = equipped_to_lead)) +
-    
+## TODO: 'capture' all plots within global environment, package them as a list and save as RDS. Demonstrated w/ this plot.
+
+equipped_to_lead_bar <-
+  ggplot(responses, aes(x = equipped_to_lead)) +
+  
   geom_bar(fill = ca_maroon()) +
     
   labs(x     = "To what extent?",
@@ -210,6 +213,9 @@ ggplot(responses, aes(x = equipped_to_lead)) +
     panel.grid.major.y = element_blank(),
     panel.grid = element_line(colour = "gray70")
     )
+
+## Still printed in rendered doc via explict call
+equipped_to_lead_bar
 ```
 
 ```{r table learning_group}
@@ -261,4 +267,27 @@ tabler(responses, given_support)
 
 ```{r table helpful_feedback}
 tabler(responses, equipped_to_lead)
+```
+
+## Save plots and tables
+
+```{r save_plots_and_tables}
+
+## The same text below means two different things to R in this context. Do you understand what they are? If you're not sure, try changing one or more of them and examining 'plots'
+
+plots <- list(
+  equipped_to_lead_bar = equipped_to_lead_bar
+)
+
+tables <- list(
+  
+)
+
+plots_and_tables <- 
+  list(
+    plots = plots, 
+    tables = tables
+  )
+
+saveRDS(plots_and_tables, here("data", "plots-and-tables.RDS"))
 ```
