@@ -57,6 +57,17 @@ lead_summary <-
   complete(lead_summary, learning_relevance, equipped_to_lead,
            fill = list(count = 0))
 
+lead_summary <- 
+  mutate(
+    lead_summary,
+    text_colour = 
+      case_when(
+        learning_relevance == "Most of it" &
+          equipped_to_lead == "Agree" ~ "white",
+        .default = "black"
+      )
+  )
+
 light_colour <- function(colour = ca_orange, n = 10){
   orange_maker <- colorRampPalette(c(colour, "white"))
   light_orange <- orange_maker(n)[n - 1]
@@ -69,13 +80,20 @@ ggplot(lead_summary,
   
   geom_tile(colour = "black") +
   
-  geom_text(aes(label = replace(count, count == 0, ""))) +
+  geom_text(
+    aes(
+      label = replace(count, count == 0, ""),
+      colour = text_colour
+      )) +
 
 labs(x = "More equipped to lead?",
      y = "Relevant learning material?",
      title = "Respondent evaluations of LEAD program") + 
   
   scale_fill_gradient(low = light_colour(ca_maroon()), high = ca_maroon()) +
+  
+  scale_colour_identity() +
+  
   coord_fixed() + 
   theme_minimal() +
   theme(
